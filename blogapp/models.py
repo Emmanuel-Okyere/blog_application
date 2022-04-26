@@ -6,7 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
-from taggit import TaggableManager
+from taggit.managers import TaggableManager
 # Create your models here.
 
 #Creating custom models
