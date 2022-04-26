@@ -2,9 +2,9 @@ from email import message
 from operator import imod
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
-from .models import Post
+from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 
 # Create your views here.
@@ -28,7 +28,19 @@ def post_list(request):
 
 def post_detail(request, year, month, day, post):
     post = get_object_or_404(Post, slug=post, status = "published", publish__year=year, publish__month = month, publish__day=day)
-    return render(request, "blogapp/post/detail.html",{"post":post})
+    comments = post.comments.filter(active = True)
+    new_comment = None
+    comment_form = CommentForm(data = request.POST)
+    if request.method == "POST":
+        comment_form = CommentForm(data = request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.post = post
+            new_comment.save()
+        else:
+            comment_form = CommentForm()
+    return render(request, "blogapp/post/detail.html",{"post":post, "comments":comments, "new_comment": new_comment,"comment_form":comment_form})
+
 
 # Sharing a post
 def post_share(request, post_id):
@@ -36,15 +48,13 @@ def post_share(request, post_id):
     sent = False
     if request.method == "POST":
         form = EmailPostForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             cd = form.cleaned_data
             post_url = request.build_absolute_uri(post.get_absolute_url())
             subject = f"{cd['name']} recommends you read {post.title}"
             message = f"Read {post.title} at {post_url}\n\n {cd['name']} comments: {cd['comment']}"
             send_mail(subject, message, "gyateng94@gmail.com", [cd["to"]])
             sent = True
-            
-
     else:
         form = EmailPostForm()
-    return render(request, "blogapp/post/share.html",{"post":post, "form":form})
+    return render(request, "blogapp/post/share.html",{"post":post, "form":form, "sent":sent})
