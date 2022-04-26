@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
+from taggit import TaggableManager
 # Create your models here.
 
 #Creating custom models
@@ -25,6 +26,7 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices= STATUS_CHOICES, default="draft")
+    tags = TaggableManager()
 
     class Meta:
         ordering = ("-publish", )
