@@ -39,6 +39,7 @@ def post_detail(request, year, month, day, post):
     new_comment = None
     comment_form = CommentForm(data = request.POST)
     if request.method == "POST":
+        mine = "okay"
         comment_form = CommentForm(data = request.POST)
         if comment_form.is_valid():
             new_comment = comment_form.save(commit=False)
