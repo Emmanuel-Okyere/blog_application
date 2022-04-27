@@ -1,5 +1,6 @@
 from email import message
 from operator import imod
+from turtle import Turtle
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from .models import Post, Comment
@@ -7,6 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from taggit.models import Tag
+from django.db.models import Count
 # Create your views here.
 class PostListView(ListView):
     queryset = Post.published.all()
@@ -44,8 +46,10 @@ def post_detail(request, year, month, day, post):
             new_comment.save()
         else:
             comment_form = CommentForm()
-    return render(request, "blogapp/post/detail.html",{"post":post, "comments":comments, "new_comment": new_comment,"comment_form":comment_form})
-
+    post_tag_ids = post.tags.values_list("id", flat = True)
+    similar_posts = Post.published.filter(tags__in=post_tag_ids).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags = Count("tags")).order_by("-same_tags", "-publish")[:4]
+    return render(request, "blogapp/post/detail.html",{"post":post, "comments":comments, "new_comment": new_comment,"comment_form":comment_form, "similar_posts":similar_posts})
 
 # Sharing a post
 def post_share(request, post_id):
