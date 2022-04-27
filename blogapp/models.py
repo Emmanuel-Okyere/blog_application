@@ -1,7 +1,3 @@
-import email
-from email.quoprimime import body_check
-from pyexpat import model
-from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -30,17 +26,16 @@ class Post(models.Model):
 
     class Meta:
         ordering = ("-publish", )
-    
+
     def __str__(self):
         return self.title
-    
+
     objects = models.Manager()
     published = PublishedManager()
 
     def get_absolute_url(self):
-        return reverse("blogapp:post_detail", args=[self.publish.year, self.publish.month, self.publish.day, self.slug])
-    
-
+        return reverse("blogapp:post_detail", args=[self.publish.year, self.publish.month,
+         self.publish.day, self.slug])
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name= "comments")

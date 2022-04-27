@@ -1,14 +1,14 @@
-from email import message
-from operator import imod
-from turtle import Turtle
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
-from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from taggit.models import Tag
 from django.db.models import Count
+from .models import Post
+from .forms import EmailPostForm, CommentForm
+
+
+
 # Create your views here.
 class PostListView(ListView):
     queryset = Post.published.all()
